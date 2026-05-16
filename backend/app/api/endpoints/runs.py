@@ -12,8 +12,11 @@ from app.schemas.run import (
     RunCreateRequest,
     RunDetailResponse,
     RunEventResponse,
+    RunReplayResponse,
     RunResponse,
 )
+from app.schemas.workflow import WorkflowResponse
+
 from app.services.run_executor import execute_fake_workflow_run
 
 router = APIRouter(tags=["runs"])
@@ -25,6 +28,39 @@ async def list_runs(
 ) -> list[Run]:
     result = await session.execute(select(Run).order_by(Run.started_at.desc()))
     return list(result.scalars().all())
+
+
+@router.get("/runs/{run_id}/replay", response_model=RunReplayResponse)
+async def get_run_replay(
+    run_id: uuid.UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> RunReplayResponse:
+    result = await session.execute(
+        select(Run).where(Run.id == run_id).options(selectinload(Run.events))
+    )
+    run = result.scalar_one_or_none()
+
+    if run is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Run `{run_id}` not found",
+        )
+
+    workflow = await session.get(Workflow, run.workflow_id)
+
+    if workflow is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Workflow `{run.workflow_id}` not found",
+        )
+
+    run.events.sort(key=lambda event: event.sequence)
+
+    return RunReplayResponse(
+        run=RunResponse.model_validate(run),
+        workflow=WorkflowResponse.model_validate(workflow),
+        events=[RunEventResponse.model_validate(event) for event in run.events],
+    )
 
 
 @router.get("/runs/{run_id}", response_model=RunDetailResponse)

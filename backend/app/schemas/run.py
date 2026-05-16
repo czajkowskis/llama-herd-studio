@@ -5,6 +5,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.workflow import WorkflowResponse
+
 
 class RunCreateRequest(BaseModel):
     input: dict[str, Any] = Field(default_factory=dict)
@@ -37,4 +39,10 @@ class RunResponse(BaseModel):
 
 
 class RunDetailResponse(RunResponse):
+    events: list[RunEventResponse] = Field(default_factory=list)
+
+
+class RunReplayResponse(BaseModel):
+    run: RunResponse
+    workflow: WorkflowResponse
     events: list[RunEventResponse] = Field(default_factory=list)
