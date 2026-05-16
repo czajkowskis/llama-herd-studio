@@ -16,13 +16,17 @@ def validate_workflow_graph(graph: dict[str, Any]) -> None:
         raise WorkflowGraphValidationError("Workflow graph must contain an edges list.")
 
     if len(nodes) == 0:
-        raise WorkflowGraphValidationError("Workflow graph must contain at least one node.")
+        raise WorkflowGraphValidationError(
+            "Workflow graph must contain at least one node."
+        )
 
     node_ids: set[str] = set()
 
     for index, node in enumerate(nodes):
         if not isinstance(node, dict):
-            raise WorkflowGraphValidationError(f"Node at index {index} must be an object.")
+            raise WorkflowGraphValidationError(
+                f"Node at index {index} must be an object."
+            )
 
         node_id = node.get("id")
         if not isinstance(node_id, str) or not node_id:
@@ -37,7 +41,9 @@ def validate_workflow_graph(graph: dict[str, Any]) -> None:
 
     for index, edge in enumerate(edges):
         if not isinstance(edge, dict):
-            raise WorkflowGraphValidationError(f"Edge at index {index} must be an object.")
+            raise WorkflowGraphValidationError(
+                f"Edge at index {index} must be an object."
+            )
 
         source = edge.get("source")
         target = edge.get("target")
@@ -61,3 +67,38 @@ def validate_workflow_graph(graph: dict[str, Any]) -> None:
             raise WorkflowGraphValidationError(
                 f"Edge at index {index} references unknown target node `{target}`."
             )
+
+    has_input_node = False
+    has_output_node = False
+
+    for node in nodes:
+        node_type = node.get("type")
+
+        if node_type == "input":
+            has_input_node = True
+
+        if node_type == "output":
+            has_output_node = True
+
+        if node_type == "agent":
+            data = node.get("data", {})
+            if not isinstance(data, dict):
+                raise WorkflowGraphValidationError(
+                    f"Agent node `{node['id']}` must have an object data field."
+                )
+
+            agent_id = data.get("agent_id")
+            if not isinstance(agent_id, str) or not agent_id:
+                raise WorkflowGraphValidationError(
+                    f"Agent node `{node['id']}` must define data.agent_id."
+                )
+
+    if not has_input_node:
+        raise WorkflowGraphValidationError(
+            "Workflow graph must contain at least one input node."
+        )
+
+    if not has_output_node:
+        raise WorkflowGraphValidationError(
+            "Workflow graph must contain at least one output node."
+        )
