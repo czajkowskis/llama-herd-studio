@@ -5,8 +5,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models.run import Run, RunEvent
+from app.models.run import Run
 from app.models.workflow import Workflow
+from app.services.event_log import append_run_event
+from app.services.graph_validation import validate_workflow_graph
 
 
 async def execute_fake_workflow_run(
@@ -23,15 +25,17 @@ async def execute_fake_workflow_run(
     session.add(run)
     await session.flush()
 
-    events = [
-        RunEvent(
-            run_id=run.id,
+    try:
+        await append_run_event(
+            session=session,
+            run=run,
             sequence=1,
             event_type="run.started",
             payload={"input": input_data},
-        ),
-        RunEvent(
-            run_id=run.id,
+        )
+        await append_run_event(
+            session=session,
+            run=run,
             sequence=2,
             event_type="workflow.loaded",
             payload={
@@ -40,25 +44,47 @@ async def execute_fake_workflow_run(
                 "node_count": len(workflow.graph.get("nodes", [])),
                 "edge_count": len(workflow.graph.get("edges", [])),
             },
-        ),
-        RunEvent(
-            run_id=run.id,
+        )
+        validate_workflow_graph(workflow.graph)
+
+        await append_run_event(
+            session=session,
+            run=run,
             sequence=3,
+            event_type="workflow.validated",
+            payload={"message": "Workflow graph is valid."},
+        )
+
+        if input_data.get("fail") is True:
+            raise RuntimeError("Fake executor failure requested.")
+
+        run.status = "success"
+        run.output = {
+            "message": "Fake executor completed successfully.",
+            "input": input_data,
+        }
+
+        await append_run_event(
+            session=session,
+            run=run,
+            sequence=4,
             event_type="run.completed",
             payload={"message": "Fake executor completed successfully."},
-        ),
-    ]
+        )
+    except Exception as exc:
+        run.status = "failed"
+        run.error = str(exc)
 
-    session.add_all(events)
-
-    run.status = "success"
-    run.output = {
-        "message": "Fake executor completed successfully.",
-        "input": input_data,
-    }
-    run.finished_at = datetime.now(timezone.utc)
-
-    await session.commit()
+        await append_run_event(
+            session=session,
+            run=run,
+            sequence=4,
+            event_type="run.failed",
+            payload={"error": str(exc)},
+        )
+    finally:
+        run.finished_at = datetime.now(timezone.utc)
+        await session.commit()
 
     result = await session.execute(
         select(Run).where(Run.id == run.id).options(selectinload(Run.events))
