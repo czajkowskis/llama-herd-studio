@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -15,6 +14,7 @@ from app.schemas.run import (
     RunEventResponse,
     RunResponse,
 )
+from app.services.run_executor import execute_fake_workflow_run
 
 router = APIRouter(tags=["runs"])
 
@@ -86,55 +86,6 @@ async def create_workflow_run(
             detail=f"Workflow `{workflow_id}` not found",
         )
 
-    run = Run(
-        workflow_id=workflow.id,
-        status="running",
-        input=payload.input,
+    return await execute_fake_workflow_run(
+        session=session, workflow=workflow, input_data=payload.input
     )
-    session.add(run)
-    await session.flush()
-
-    events = [
-        RunEvent(
-            run_id=run.id,
-            sequence=1,
-            event_type="run.started",
-            payload={"input": payload.input},
-        ),
-        RunEvent(
-            run_id=run.id,
-            sequence=2,
-            event_type="workflow.loaded",
-            payload={
-                "workflow_id": str(workflow.id),
-                "workflow_name": workflow.name,
-                "node_count": len(workflow.graph.get("nodes", [])),
-                "edge_count": len(workflow.graph.get("edges", [])),
-            },
-        ),
-        RunEvent(
-            run_id=run.id,
-            sequence=3,
-            event_type="run.completed",
-            payload={"message": "Fake executor completed successfully."},
-        ),
-    ]
-
-    session.add_all(events)
-
-    run.status = "success"
-    run.output = {
-        "message": "Fake executor completed successfully.",
-        "input": payload.input,
-    }
-    run.finished_at = datetime.now(timezone.utc)
-
-    await session.commit()
-
-    result = await session.execute(
-        select(Run).where(Run.id == run.id).options(selectinload(Run.events))
-    )
-    created_run = result.scalar_one()
-    created_run.events.sort(key=lambda event: event.sequence)
-
-    return created_run
