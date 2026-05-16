@@ -14,8 +14,7 @@ from app.schemas.workflow import (
 )
 
 from app.services.graph_validation import (
-    WorkflowGraphValidationError,
-    validate_workflow_graph,
+    collect_workflow_graph_errors,
 )
 
 router = APIRouter(prefix="/workflows", tags=["workflows"])
@@ -48,6 +47,22 @@ async def create_workflow(
     return workflow
 
 
+@router.get("/{workflow_id}/validate", response_model=WorkflowValidationResponse)
+async def validate_workflow(
+    workflow_id: uuid.UUID, session: AsyncSession = Depends(get_db_session)
+) -> WorkflowValidationResponse:
+    workflow = await session.get(Workflow, workflow_id)
+
+    if workflow is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Workflow '{workflow_id}' not found",
+        )
+
+    errors = collect_workflow_graph_errors(workflow.graph)
+    return WorkflowValidationResponse(valid=len(errors) == 0, errors=errors)
+
+
 @router.get("/{workflow_id}", response_model=WorkflowResponse)
 async def get_workflow(
     workflow_id: uuid.UUID,
@@ -62,26 +77,6 @@ async def get_workflow(
         )
 
     return workflow
-
-
-@router.get("/{workflow_id}/validate", response_model=WorkflowValidationResponse)
-async def validate_workflow(
-    workflow_id: uuid.UUID, session: AsyncSession = Depends(get_db_session)
-) -> WorkflowValidationResponse:
-    workflow = await session.get(Workflow, workflow_id)
-
-    if workflow is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Workflow '{workflow_id}' not found",
-        )
-
-    try:
-        validate_workflow_graph(workflow.graph)
-    except WorkflowGraphValidationError as e:
-        return WorkflowValidationResponse(valid=False, errors=[str(e)])
-
-    return WorkflowValidationResponse(valid=True)
 
 
 @router.patch("/{workflow_id}", response_model=WorkflowResponse)
