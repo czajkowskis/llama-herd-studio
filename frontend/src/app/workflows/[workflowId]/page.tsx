@@ -20,6 +20,7 @@ import {
   type Workflow,
   type WorkflowValidation,
 } from "@/lib/api";
+import { DeleteWorkflowButton } from "@/components/delete-workflow-button";
 import { StatusBadge } from "@/components/status-badge";
 
 const defaultRunInput = '{\n  "topic": "debugging workflows"\n}';
@@ -178,6 +179,7 @@ export default function WorkflowDetailPage() {
             <Play size={16} />
             {isRunning ? "Running..." : "Run"}
           </button>
+          <DeleteWorkflowButton workflowId={workflow.id} />
         </div>
       </section>
 

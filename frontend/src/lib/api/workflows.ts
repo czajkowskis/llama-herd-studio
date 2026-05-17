@@ -27,3 +27,9 @@ export function createWorkflow(input: CreateWorkflowInput) {
     body: input,
   });
 }
+
+export function deleteWorkflow(workflowId: string) {
+  return apiRequest<void>(`/api/workflows/${workflowId}`, {
+    method: "DELETE",
+  });
+}
