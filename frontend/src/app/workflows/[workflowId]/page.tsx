@@ -18,12 +18,10 @@ import {
   createWorkflowRun,
   getWorkflow,
   validateWorkflow,
-  type RunDetail,
   type Workflow,
   type WorkflowValidation,
 } from "@/lib/api";
 import { DeleteWorkflowButton } from "@/components/delete-workflow-button";
-import { StatusBadge } from "@/components/status-badge";
 import { WorkflowGraphView } from "@/components/workflow-graph-view";
 
 const defaultRunInput = '{\n  "topic": "debugging workflows"\n}';
@@ -51,7 +49,6 @@ export default function WorkflowDetailPage() {
 
   const [workflow, setWorkflow] = useState<Workflow | null>(null);
   const [validation, setValidation] = useState<WorkflowValidation | null>(null);
-  const [lastRun, setLastRun] = useState<RunDetail | null>(null);
   const [inputJson, setInputJson] = useState(defaultRunInput);
   const [inputError, setInputError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -115,8 +112,7 @@ export default function WorkflowDetailPage() {
     try {
       const parsedInput = JSON.parse(inputJson) as Record<string, unknown>;
       const run = await createWorkflowRun(workflowId, { input: parsedInput });
-      setLastRun(run);
-      router.refresh();
+      router.push(`/runs/${run.id}/replay`);
     } catch (caughtError) {
       if (caughtError instanceof SyntaxError) {
         setInputError(caughtError.message);
@@ -294,31 +290,6 @@ export default function WorkflowDetailPage() {
         </div>
 
         <div className="grid gap-4">
-          {lastRun && (
-            <section className="rounded-lg border border-[var(--ctp-surface0)] bg-[var(--ctp-mantle)] p-4">
-              <h2 className="mb-3 text-base font-semibold">Last Run</h2>
-              <div className="grid gap-3">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm text-[var(--ctp-subtext0)]">
-                    Status
-                  </span>
-                  <StatusBadge status={lastRun.status} />
-                </div>
-
-                <pre className="overflow-auto rounded-md border border-[var(--ctp-surface0)] bg-[var(--ctp-crust)] p-3 text-sm text-[var(--ctp-subtext1)]">
-                  {JSON.stringify(lastRun.output ?? lastRun.error, null, 2)}
-                </pre>
-
-                <Link
-                  className="inline-flex w-fit items-center gap-2 rounded-md border border-[var(--ctp-mauve)] px-3 py-2 text-sm text-[var(--ctp-mauve)] transition hover:bg-[var(--ctp-surface0)]"
-                  href={`/runs/${lastRun.id}/replay`}
-                >
-                  Open Replay
-                </Link>
-              </div>
-            </section>
-          )}
-
           <section className="rounded-lg border border-[var(--ctp-surface0)] bg-[var(--ctp-mantle)] p-4">
             <h2 className="mb-3 text-base font-semibold">Graph</h2>
             <WorkflowGraphView graph={workflow.graph} />
