@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Bot, Cpu, Thermometer, Wrench } from "lucide-react";
 
 import { getAgent } from "@/lib/api";
+import { DeleteAgentButton } from "@/components/delete-agent-button";
 
 type AgentDetailPageProps = {
   params: Promise<{
@@ -45,6 +46,8 @@ export default async function AgentDetailPage({
             </p>
           )}
         </div>
+
+        <DeleteAgentButton agentId={agent.id} />
       </section>
 
       <section className="mb-4 grid gap-3 md:grid-cols-4">

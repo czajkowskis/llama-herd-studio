@@ -27,3 +27,9 @@ export function createAgent(input: CreateAgentInput) {
     body: input,
   });
 }
+
+export function deleteAgent(agentId: string) {
+  return apiRequest<void>(`/api/agents/${agentId}`, {
+    method: "DELETE",
+  });
+}
