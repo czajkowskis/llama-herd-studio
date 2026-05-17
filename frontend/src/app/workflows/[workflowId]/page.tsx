@@ -7,9 +7,10 @@ import {
   CheckCircle2,
   GitBranch,
   Play,
+  RotateCcw,
   XCircle,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   createWorkflowRun,
@@ -21,11 +22,22 @@ import {
 } from "@/lib/api";
 import { StatusBadge } from "@/components/status-badge";
 
+const defaultRunInput = '{\n  "topic": "debugging workflows"\n}';
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function getJsonParseError(value: string) {
+  try {
+    JSON.parse(value);
+    return null;
+  } catch (error) {
+    return error instanceof Error ? error.message : "Invalid JSON.";
+  }
 }
 
 export default function WorkflowDetailPage() {
@@ -36,11 +48,13 @@ export default function WorkflowDetailPage() {
   const [workflow, setWorkflow] = useState<Workflow | null>(null);
   const [validation, setValidation] = useState<WorkflowValidation | null>(null);
   const [lastRun, setLastRun] = useState<RunDetail | null>(null);
-  const [inputJson, setInputJson] = useState('{"topic":"debugging workflows"}');
+  const [inputJson, setInputJson] = useState(defaultRunInput);
+  const [inputError, setInputError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
+  const liveInputError = useMemo(() => getJsonParseError(inputJson), [inputJson]);
 
   useEffect(() => {
     async function loadWorkflow() {
@@ -88,6 +102,7 @@ export default function WorkflowDetailPage() {
 
   async function handleRun() {
     setError(null);
+    setInputError(null);
     setIsRunning(true);
 
     try {
@@ -96,6 +111,11 @@ export default function WorkflowDetailPage() {
       setLastRun(run);
       router.refresh();
     } catch (caughtError) {
+      if (caughtError instanceof SyntaxError) {
+        setInputError(caughtError.message);
+        return;
+      }
+
       setError(
         caughtError instanceof Error
           ? caughtError.message
@@ -151,7 +171,7 @@ export default function WorkflowDetailPage() {
 
           <button
             className="inline-flex items-center gap-2 rounded-md border border-[var(--ctp-mauve)] bg-[var(--ctp-mauve)] px-3 py-2 text-sm font-medium text-[var(--ctp-crust)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={isRunning}
+            disabled={isRunning || liveInputError !== null}
             type="button"
             onClick={handleRun}
           >
@@ -200,8 +220,27 @@ export default function WorkflowDetailPage() {
             <textarea
               className="min-h-40 w-full resize-y rounded-md border border-[var(--ctp-surface1)] bg-[var(--ctp-crust)] p-3 font-mono text-sm text-[var(--ctp-subtext1)] outline-none transition focus:border-[var(--ctp-mauve)]"
               value={inputJson}
-              onChange={(event) => setInputJson(event.target.value)}
+              onChange={(event) => {
+                setInputJson(event.target.value);
+                setInputError(null);
+              }}
             />
+            {(inputError || liveInputError) && (
+              <p className="mt-2 text-sm text-[var(--ctp-red)]">
+                Invalid JSON: {inputError ?? liveInputError}
+              </p>
+            )}
+            <button
+              className="mt-3 inline-flex items-center gap-2 rounded-md border border-[var(--ctp-surface1)] px-3 py-2 text-sm text-[var(--ctp-subtext1)] transition hover:bg-[var(--ctp-surface0)]"
+              type="button"
+              onClick={() => {
+                setInputJson(defaultRunInput);
+                setInputError(null);
+              }}
+            >
+              <RotateCcw size={16} />
+              Reset Input
+            </button>
           </section>
 
           {validation && (
