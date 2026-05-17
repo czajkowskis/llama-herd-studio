@@ -1,4 +1,5 @@
 import { GitBranch, Network, Plus } from "lucide-react";
+import Link from "next/link";
 
 import { listWorkflows } from "@/lib/api";
 
@@ -22,13 +23,13 @@ export default async function WorkflowsPage() {
           <h1 className="text-3xl font-semibold tracking-normal">Workflows</h1>
         </div>
 
-        <button
+        <Link
           className="inline-flex items-center gap-2 rounded-md border border-[var(--ctp-mauve)] bg-[var(--ctp-mauve)] px-3 py-2 text-sm font-medium text-[var(--ctp-crust)] transition hover:opacity-90"
-          type="button"
+          href="/workflows/new"
         >
           <Plus size={16} />
           New Workflow
-        </button>
+        </Link>
       </section>
 
       <section className="grid gap-3 xl:grid-cols-2">
