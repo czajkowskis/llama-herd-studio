@@ -4,3 +4,4 @@ export * from "./dashboard";
 export * from "./replay";
 export * from "./runs";
 export * from "./types";
+export * from "./workflows";
