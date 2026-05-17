@@ -32,8 +32,9 @@ export default async function AgentsPage() {
 
       <section className="grid gap-3 xl:grid-cols-2">
         {agents.map((agent) => (
-          <article
-            className="rounded-lg border border-[var(--ctp-surface0)] bg-[var(--ctp-mantle)] p-4"
+          <Link
+            className="block rounded-lg border border-[var(--ctp-surface0)] bg-[var(--ctp-mantle)] p-4 transition hover:border-[var(--ctp-mauve)] hover:bg-[var(--ctp-surface0)]"
+            href={`/agents/${agent.id}`}
             key={agent.id}
           >
             <div className="mb-4 flex items-start justify-between gap-4">
@@ -92,7 +93,7 @@ export default async function AgentsPage() {
             <div className="mt-4 border-t border-[var(--ctp-surface0)] pt-3 text-sm text-[var(--ctp-subtext0)]">
               Created {formatDate(agent.created_at)}
             </div>
-          </article>
+          </Link>
         ))}
 
         {agents.length === 0 && (

@@ -18,6 +18,9 @@ export function listAgents() {
   return apiRequest<Agent[]>("/api/agents");
 }
 
+export function getAgent(agentId: string) {
+  return apiRequest<Agent>(`/api/agents/${agentId}`);
+}
 export function createAgent(input: CreateAgentInput) {
   return apiRequest<Agent>("/api/agents", {
     method: "POST",
