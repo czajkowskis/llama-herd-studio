@@ -9,6 +9,7 @@ from app.models.run import Run
 from app.models.workflow import Workflow
 from app.services.event_log import append_run_event
 from app.services.graph_validation import validate_workflow_graph
+from app.services.graph_executor import execute_workflow_graph
 
 
 async def execute_fake_workflow_run(
@@ -58,18 +59,23 @@ async def execute_fake_workflow_run(
         if input_data.get("fail") is True:
             raise RuntimeError("Fake executor failure requested.")
 
+        output, next_sequence = await execute_workflow_graph(
+            session=session,
+            run=run,
+            workflow=workflow,
+            input_data=input_data,
+            starting_sequence=4,
+        )
+
         run.status = "success"
-        run.output = {
-            "message": "Fake executor completed successfully.",
-            "input": input_data,
-        }
+        run.output = output
 
         await append_run_event(
             session=session,
             run=run,
-            sequence=4,
+            sequence=next_sequence,
             event_type="run.completed",
-            payload={"message": "Fake executor completed successfully."},
+            payload={"output": output},
         )
     except Exception as exc:
         run.status = "failed"
@@ -78,7 +84,7 @@ async def execute_fake_workflow_run(
         await append_run_event(
             session=session,
             run=run,
-            sequence=4,
+            sequence=999,
             event_type="run.failed",
             payload={"error": str(exc)},
         )
