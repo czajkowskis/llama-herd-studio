@@ -21,3 +21,14 @@ export type DashboardSummary = {
   runs_by_status: RunsByStatus;
   recent_runs: RecentRun[];
 };
+
+export type Run = {
+  id: string;
+  workflow_id: string;
+  status: string;
+  input: Record<string, unknown>;
+  output: Record<string, unknown> | null;
+  error: string | null;
+  started_at: string;
+  finished_at: string | null;
+};
