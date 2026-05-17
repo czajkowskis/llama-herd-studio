@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   GitBranch,
+  Pencil,
   Play,
   RotateCcw,
   XCircle,
@@ -160,6 +161,13 @@ export default function WorkflowDetailPage() {
         </div>
 
         <div className="flex gap-2">
+          <Link
+            className="inline-flex items-center gap-2 rounded-md border border-[var(--ctp-surface1)] px-3 py-2 text-sm text-[var(--ctp-subtext1)] transition hover:bg-[var(--ctp-surface0)]"
+            href={`/workflows/${workflow.id}/edit`}
+          >
+            <Pencil size={16} />
+            Edit Workflow
+          </Link>
           <button
             className="inline-flex items-center gap-2 rounded-md border border-[var(--ctp-surface1)] px-3 py-2 text-sm text-[var(--ctp-subtext1)] transition hover:bg-[var(--ctp-surface0)]"
             disabled={isValidating}

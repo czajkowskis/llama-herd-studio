@@ -7,6 +7,12 @@ export type CreateWorkflowInput = {
   graph: WorkflowGraph;
 };
 
+export type UpdateWorkflowInput = {
+  name?: string;
+  description?: string | null;
+  graph?: WorkflowGraph;
+};
+
 export function listWorkflows() {
   return apiRequest<Workflow[]>("/api/workflows");
 }
@@ -24,6 +30,13 @@ export function validateWorkflow(workflowId: string) {
 export function createWorkflow(input: CreateWorkflowInput) {
   return apiRequest<Workflow>("/api/workflows", {
     method: "POST",
+    body: input,
+  });
+}
+
+export function updateWorkflow(workflowId: string, input: UpdateWorkflowInput) {
+  return apiRequest<Workflow>(`/api/workflows/${workflowId}`, {
+    method: "PATCH",
     body: input,
   });
 }
