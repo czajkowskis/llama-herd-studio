@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, CircleDot, GitBranch, Timer } from "lucide-react";
 
+import { StatusBadge } from "@/components/status-badge";
 import { getRunReplay } from "@/lib/api";
 
 type ReplayPageProps = {
@@ -18,22 +19,6 @@ function formatDate(value: string | null) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
-}
-
-function statusClassName(status: string) {
-  if (status === "success") {
-    return "border-[var(--ctp-green)]/40 bg-[var(--ctp-green)]/10 text-[var(--ctp-green)]";
-  }
-
-  if (status === "failed") {
-    return "border-[var(--ctp-red)]/40 bg-[var(--ctp-red)]/10 text-[var(--ctp-red)]";
-  }
-
-  if (status === "running") {
-    return "border-[var(--ctp-blue)]/40 bg-[var(--ctp-blue)]/10 text-[var(--ctp-blue)]";
-  }
-
-  return "border-[var(--ctp-surface1)] bg-[var(--ctp-surface0)] text-[var(--ctp-subtext1)]";
 }
 
 function formatJson(value: unknown) {
@@ -61,13 +46,7 @@ export default async function RunReplayPage({ params }: ReplayPageProps) {
           </h1>
         </div>
 
-        <span
-          className={`rounded-full border px-3 py-1 text-sm capitalize ${statusClassName(
-            replay.run.status,
-          )}`}
-        >
-          {replay.run.status}
-        </span>
+        <StatusBadge status={replay.run.status} />
       </section>
 
       <section className="mb-4 grid gap-3 lg:grid-cols-3">

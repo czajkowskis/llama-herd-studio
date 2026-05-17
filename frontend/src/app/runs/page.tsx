@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, History } from "lucide-react";
 
+import { StatusBadge } from "@/components/status-badge";
 import { listRuns } from "@/lib/api";
 
 function formatDate(value: string | null) {
@@ -12,22 +13,6 @@ function formatDate(value: string | null) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
-}
-
-function statusClassName(status: string) {
-  if (status === "success") {
-    return "border-[var(--ctp-green)]/40 bg-[var(--ctp-green)]/10 text-[var(--ctp-green)]";
-  }
-
-  if (status === "failed") {
-    return "border-[var(--ctp-red)]/40 bg-[var(--ctp-red)]/10 text-[var(--ctp-red)]";
-  }
-
-  if (status === "running") {
-    return "border-[var(--ctp-blue)]/40 bg-[var(--ctp-blue)]/10 text-[var(--ctp-blue)]";
-  }
-
-  return "border-[var(--ctp-surface1)] bg-[var(--ctp-surface0)] text-[var(--ctp-subtext1)]";
 }
 
 export default async function RunsPage() {
@@ -66,13 +51,7 @@ export default async function RunsPage() {
                 </span>
               </div>
 
-              <span
-                className={`w-fit rounded-full border px-2 py-1 text-sm capitalize ${statusClassName(
-                  run.status,
-                )}`}
-              >
-                {run.status}
-              </span>
+              <StatusBadge status={run.status} />
 
               <span className="text-sm text-[var(--ctp-subtext1)]">
                 {formatDate(run.started_at)}

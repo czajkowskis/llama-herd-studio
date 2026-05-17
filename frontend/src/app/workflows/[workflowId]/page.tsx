@@ -19,6 +19,7 @@ import {
   type Workflow,
   type WorkflowValidation,
 } from "@/lib/api";
+import { StatusBadge } from "@/components/status-badge";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", {
@@ -240,9 +241,7 @@ export default function WorkflowDetailPage() {
                   <span className="text-sm text-[var(--ctp-subtext0)]">
                     Status
                   </span>
-                  <span className="rounded-full border border-[var(--ctp-surface1)] bg-[var(--ctp-surface0)] px-2 py-1 text-sm capitalize">
-                    {lastRun.status}
-                  </span>
+                  <StatusBadge status={lastRun.status} />
                 </div>
 
                 <pre className="overflow-auto rounded-md border border-[var(--ctp-surface0)] bg-[var(--ctp-crust)] p-3 text-sm text-[var(--ctp-subtext1)]">

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { StatusBadge } from "@/components/status-badge";
 import { getDashboardSummary } from "@/lib/api";
 
 function formatDate(value: string) {
@@ -94,9 +95,7 @@ export default async function Home() {
                     {formatDate(run.started_at)}
                   </span>
                 </div>
-                <span className="rounded-full border border-[var(--ctp-surface1)] bg-[var(--ctp-surface0)] px-2 py-1 text-sm capitalize text-[var(--ctp-subtext1)]">
-                  {run.status}
-                </span>
+                <StatusBadge status={run.status} />
               </div>
             ))}
 
