@@ -23,6 +23,7 @@ import {
 } from "@/lib/api";
 import { DeleteWorkflowButton } from "@/components/delete-workflow-button";
 import { StatusBadge } from "@/components/status-badge";
+import { WorkflowGraphView } from "@/components/workflow-graph-view";
 
 const defaultRunInput = '{\n  "topic": "debugging workflows"\n}';
 
@@ -306,6 +307,11 @@ export default function WorkflowDetailPage() {
               </div>
             </section>
           )}
+
+          <section className="rounded-lg border border-[var(--ctp-surface0)] bg-[var(--ctp-mantle)] p-4">
+            <h2 className="mb-3 text-base font-semibold">Graph</h2>
+            <WorkflowGraphView graph={workflow.graph} />
+          </section>
 
           <section className="rounded-lg border border-[var(--ctp-surface0)] bg-[var(--ctp-mantle)] p-4">
             <h2 className="mb-3 text-base font-semibold">Graph JSON</h2>
