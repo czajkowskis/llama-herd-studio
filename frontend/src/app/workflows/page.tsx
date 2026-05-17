@@ -34,8 +34,9 @@ export default async function WorkflowsPage() {
 
       <section className="grid gap-3 xl:grid-cols-2">
         {workflows.map((workflow) => (
-          <article
-            className="rounded-lg border border-[var(--ctp-surface0)] bg-[var(--ctp-mantle)] p-4"
+          <Link
+            className="block rounded-lg border border-[var(--ctp-surface0)] bg-[var(--ctp-mantle)] p-4 transition hover:border-[var(--ctp-mauve)] hover:bg-[var(--ctp-surface0)]"
+            href={`/workflows/${workflow.id}`}
             key={workflow.id}
           >
             <div className="mb-4 flex items-start justify-between gap-4">
@@ -78,7 +79,7 @@ export default async function WorkflowsPage() {
             <div className="mt-4 border-t border-[var(--ctp-surface0)] pt-3 text-sm text-[var(--ctp-subtext0)]">
               Updated {formatDate(workflow.updated_at)}
             </div>
-          </article>
+          </Link>
         ))}
 
         {workflows.length === 0 && (

@@ -91,3 +91,16 @@ export type Agent = {
   created_at: string;
   updated_at: string;
 };
+
+export type WorkflowValidation = {
+  valid: boolean;
+  errors: string[];
+};
+
+export type CreateRunInput = {
+  input: Record<string, unknown>;
+};
+
+export type RunDetail = Run & {
+  events: RunEvent[];
+};

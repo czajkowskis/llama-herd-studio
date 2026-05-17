@@ -1,5 +1,5 @@
 import { apiRequest } from "./client";
-import type { Workflow, WorkflowGraph } from "./types";
+import type { Workflow, WorkflowGraph, WorkflowValidation } from "./types";
 
 export type CreateWorkflowInput = {
   name: string;
@@ -9,6 +9,16 @@ export type CreateWorkflowInput = {
 
 export function listWorkflows() {
   return apiRequest<Workflow[]>("/api/workflows");
+}
+
+export function getWorkflow(workflowId: string) {
+  return apiRequest<Workflow>(`/api/workflows/${workflowId}`);
+}
+
+export function validateWorkflow(workflowId: string) {
+  return apiRequest<WorkflowValidation>(
+    `/api/workflows/${workflowId}/validate`,
+  );
 }
 
 export function createWorkflow(input: CreateWorkflowInput) {
