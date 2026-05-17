@@ -73,3 +73,21 @@ export type RunReplay = {
   workflow: Workflow;
   events: RunEvent[];
 };
+
+export type AgentConfig = {
+  temperature: number;
+  max_tokens: number | null;
+  tools: string[];
+};
+
+export type Agent = {
+  id: string;
+  name: string;
+  description: string | null;
+  system_prompt: string;
+  model_provider: string;
+  model_name: string;
+  config: AgentConfig;
+  created_at: string;
+  updated_at: string;
+};
