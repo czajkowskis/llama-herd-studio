@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Bot, Cpu, Thermometer, Wrench } from "lucide-react";
+import { ArrowLeft, Bot, Cpu, Pencil, Thermometer, Wrench } from "lucide-react";
 
 import { getAgent } from "@/lib/api";
 import { DeleteAgentButton } from "@/components/delete-agent-button";
@@ -47,7 +47,16 @@ export default async function AgentDetailPage({
           )}
         </div>
 
-        <DeleteAgentButton agentId={agent.id} />
+        <div className="flex gap-2">
+          <Link
+            className="inline-flex items-center gap-2 rounded-md border border-[var(--ctp-surface1)] px-3 py-2 text-sm text-[var(--ctp-subtext1)] transition hover:bg-[var(--ctp-surface0)]"
+            href={`/agents/${agent.id}/edit`}
+          >
+            <Pencil size={16} />
+            Edit Agent
+          </Link>
+          <DeleteAgentButton agentId={agent.id} />
+        </div>
       </section>
 
       <section className="mb-4 grid gap-3 md:grid-cols-4">
