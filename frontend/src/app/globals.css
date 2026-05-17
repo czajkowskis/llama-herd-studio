@@ -46,3 +46,26 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+.react-flow__node.selected {
+  background:
+    linear-gradient(
+      135deg,
+      var(--ctp-surface2),
+      var(--ctp-surface1)
+    ) !important;
+  border-color: var(--ctp-text) !important;
+  box-shadow:
+    0 0 0 3px var(--ctp-text),
+    0 0 0 7px color-mix(in srgb, var(--ctp-text) 14%, transparent),
+    0 14px 32px color-mix(in srgb, var(--ctp-crust) 55%, transparent);
+  transform: translateY(-1px);
+}
+
+.react-flow__node.selected span:first-child {
+  color: var(--ctp-text) !important;
+}
+
+.react-flow__node.selected span:last-child {
+  color: var(--ctp-subtext1) !important;
+}

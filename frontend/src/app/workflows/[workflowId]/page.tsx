@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   GitBranch,
+  Network,
   Pencil,
   Play,
   RotateCcw,
@@ -57,7 +58,10 @@ export default function WorkflowDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const liveInputError = useMemo(() => getJsonParseError(inputJson), [inputJson]);
+  const liveInputError = useMemo(
+    () => getJsonParseError(inputJson),
+    [inputJson],
+  );
 
   useEffect(() => {
     async function loadWorkflow() {
@@ -168,6 +172,13 @@ export default function WorkflowDetailPage() {
           >
             <Pencil size={16} />
             Edit Workflow
+          </Link>
+          <Link
+            className="inline-flex items-center gap-2 rounded-md border border-[var(--ctp-surface1)] px-3 py-2 text-sm text-[var(--ctp-subtext1)] transition hover:bg-[var(--ctp-surface0)]"
+            href={`/workflows/${workflow.id}/edit-graph`}
+          >
+            <Network size={16} />
+            Edit Graph
           </Link>
           <button
             className="inline-flex items-center gap-2 rounded-md border border-[var(--ctp-surface1)] px-3 py-2 text-sm text-[var(--ctp-subtext1)] transition hover:bg-[var(--ctp-surface0)]"
