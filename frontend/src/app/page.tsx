@@ -56,7 +56,9 @@ export default async function Home() {
           <h2 className="mb-3 text-base font-semibold">Runs By Status</h2>
           <div className="grid">
             <StatusRow
-              icon={<CheckCircle2 size={18} className="text-[var(--ctp-green)]" />}
+              icon={
+                <CheckCircle2 size={18} className="text-[var(--ctp-green)]" />
+              }
               label="Success"
               value={summary.runs_by_status.success}
             />
